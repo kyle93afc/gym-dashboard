@@ -2,12 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, TrendingUp, Dumbbell } from "lucide-react";
+import { LayoutDashboard, TrendingUp, Dumbbell, Target } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navItems = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard },
   { href: "/progress", label: "Progress", icon: TrendingUp },
+  { href: "/next-session", label: "Next Session", icon: Target },
 ];
 
 export default function Navigation() {

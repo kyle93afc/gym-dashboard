@@ -1,6 +1,24 @@
 import { WorkoutsData, WorkoutSession, Exercise } from "@/types/workout";
 import workoutsData from "@/data/workouts.json";
 
+export type SessionCategory = "Push" | "Pull" | "Legs";
+
+export interface ExerciseTarget {
+  name: string;
+  targetWeight: number;
+  targetReps: number;
+  targetSets: number;
+  status: "progression" | "maintain";
+  lastWeight: number;
+  lastRepsPerSet: number[];
+}
+
+export interface SessionTargets {
+  type: SessionCategory;
+  exercises: ExerciseTarget[];
+  lastSessionDate: string | null;
+}
+
 const data = workoutsData as WorkoutsData;
 
 export function getAllSessions(): WorkoutSession[] {
@@ -192,6 +210,61 @@ export function getTypeBg(type: string): string {
     Cardio: "rgba(255, 51, 102, 0.15)",
   };
   return colors[type] ?? "rgba(136, 136, 170, 0.15)";
+}
+
+function isCompound(name: string): boolean {
+  const lower = name.toLowerCase();
+  return (
+    lower.includes("bench") ||
+    lower.includes("press") ||
+    lower.includes("row") ||
+    lower.includes("squat") ||
+    lower.includes("deadlift")
+  );
+}
+
+function getTargetReps(name: string): number {
+  return isCompound(name) ? 8 : 12;
+}
+
+export function getNextSessionTargets(): SessionTargets[] {
+  const sessions = getAllSessions(); // already sorted newest first
+  const categories: SessionCategory[] = ["Push", "Pull", "Legs"];
+
+  return categories.map((category) => {
+    const lastSession = sessions.find((s) => s.type === category);
+
+    if (!lastSession) {
+      return { type: category, exercises: [], lastSessionDate: null };
+    }
+
+    const exercises: ExerciseTarget[] = lastSession.exercises.map((exercise) => {
+      const targetReps = getTargetReps(exercise.name);
+      const lastWeight = Math.max(...exercise.sets.map((s) => s.weight_kg));
+      const allHitTarget = exercise.sets.every((s) => s.reps >= targetReps);
+
+      return {
+        name: exercise.name,
+        targetWeight: allHitTarget ? lastWeight + 2.5 : lastWeight,
+        targetReps,
+        targetSets: 3,
+        status: allHitTarget ? "progression" : "maintain",
+        lastWeight,
+        lastRepsPerSet: exercise.sets.map((s) => s.reps),
+      };
+    });
+
+    return { type: category, exercises, lastSessionDate: lastSession.date };
+  });
+}
+
+export function getNextRecommendedSession(): SessionCategory {
+  const sessions = getAllSessions();
+  if (sessions.length === 0) return "Push";
+  const cycle: SessionCategory[] = ["Push", "Pull", "Legs"];
+  const lastIndex = cycle.indexOf(sessions[0].type as SessionCategory);
+  if (lastIndex === -1) return "Push";
+  return cycle[(lastIndex + 1) % 3];
 }
 
 export function calculateSessionVolume(session: WorkoutSession): number {

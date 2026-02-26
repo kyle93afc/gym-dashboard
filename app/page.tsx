@@ -1,4 +1,5 @@
-import { Dumbbell, Flame, Calendar, BarChart3, Clock } from "lucide-react";
+import { Dumbbell, Flame, Calendar, BarChart3, Clock, Target, ArrowRight, ArrowUp, Minus } from "lucide-react";
+import Link from "next/link";
 import StatCard from "@/components/StatCard";
 import RecentSessions from "@/components/RecentSessions";
 import VolumeChart from "@/components/VolumeChart";
@@ -7,14 +8,32 @@ import {
   getTotalStats,
   getVolumeChartData,
   formatDuration,
+  getNextRecommendedSession,
+  getNextSessionTargets,
+  getTypeColor,
+  ExerciseTarget,
 } from "@/lib/workouts";
 
 export default function DashboardPage() {
   const sessions = getAllSessions();
   const stats = getTotalStats();
   const volumeData = getVolumeChartData();
+  const nextUp = getNextRecommendedSession();
+  const allTargets = getNextSessionTargets();
+  const nextTargets = allTargets.find((t) => t.type === nextUp);
 
   const totalVolumeTons = (stats.totalVolume / 1000).toFixed(1);
+  const nextColor = getTypeColor(nextUp);
+  const colorBgMap: Record<string, string> = {
+    Push: "rgba(0,180,255,0.08)",
+    Pull: "rgba(57,255,20,0.08)",
+    Legs: "rgba(191,0,255,0.08)",
+  };
+  const colorBorderMap: Record<string, string> = {
+    Push: "rgba(0,180,255,0.25)",
+    Pull: "rgba(57,255,20,0.25)",
+    Legs: "rgba(191,0,255,0.25)",
+  };
 
   return (
     <div className="space-y-8">
@@ -74,6 +93,74 @@ export default function DashboardPage() {
           </span>
         </div>
       )}
+
+      {/* Next Session summary card */}
+      <div
+        className="rounded-xl border p-5 transition-all duration-200"
+        style={{
+          background: colorBgMap[nextUp] ?? "rgba(255,255,255,0.03)",
+          borderColor: colorBorderMap[nextUp] ?? "rgba(255,255,255,0.06)",
+        }}
+      >
+        <div className="flex items-start justify-between gap-4 flex-wrap">
+          {/* Left: title + exercises */}
+          <div className="flex items-start gap-4">
+            <div
+              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg"
+              style={{ background: colorBgMap[nextUp] ?? "rgba(255,255,255,0.05)" }}
+            >
+              <Target className="h-5 w-5" style={{ color: nextColor }} />
+            </div>
+            <div>
+              <div className="text-[10px] font-semibold uppercase tracking-[0.2em]" style={{ color: nextColor }}>
+                Next Session
+              </div>
+              <div className="mt-0.5 text-lg font-bold text-white">
+                {nextUp} Day
+              </div>
+              {nextTargets && nextTargets.exercises.length > 0 ? (
+                <div className="mt-2 flex flex-wrap gap-3">
+                  {nextTargets.exercises.slice(0, 4).map((ex: ExerciseTarget) => (
+                    <div key={ex.name} className="flex items-center gap-1.5 text-xs text-white/50">
+                      {ex.status === "progression" ? (
+                        <ArrowUp className="h-3 w-3 text-[#39ff14]" />
+                      ) : (
+                        <Minus className="h-3 w-3 text-[#ffcc00]" />
+                      )}
+                      <span className="text-white/70">{ex.name}:</span>
+                      <span className="font-semibold text-white">
+                        {ex.targetWeight}kg
+                      </span>
+                      <span className="text-white/30">
+                        {ex.targetSets}×{ex.targetReps}
+                      </span>
+                    </div>
+                  ))}
+                  {nextTargets.exercises.length > 4 && (
+                    <span className="text-xs text-white/30">
+                      +{nextTargets.exercises.length - 4} more
+                    </span>
+                  )}
+                </div>
+              ) : (
+                <div className="mt-1.5 text-xs text-white/30">
+                  No previous {nextUp} session — log one to get targets
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Right: CTA */}
+          <Link
+            href="/next-session"
+            className="flex shrink-0 items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition-all duration-200 hover:opacity-90"
+            style={{ background: nextColor, color: "#0a0a0f" }}
+          >
+            View Plan
+            <ArrowRight className="h-4 w-4" />
+          </Link>
+        </div>
+      </div>
 
       {/* Volume chart + Recent sessions */}
       <div className="grid gap-6 lg:grid-cols-5">
