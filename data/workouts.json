@@ -1,0 +1,20 @@
+{
+  "sessions": [
+    {
+      "id": "2026-02-26-push",
+      "date": "2026-02-26",
+      "type": "Push",
+      "label": "Upper Body Push",
+      "duration_seconds": 1337,
+      "volume_kg": 6442,
+      "exercises": [
+        {"name": "DB Bench Press", "sets": [{"set":1,"weight_kg":40,"reps":7},{"set":2,"weight_kg":40,"reps":7},{"set":3,"weight_kg":40,"reps":3}]},
+        {"name": "DB Seated Shoulder Press", "sets": [{"set":1,"weight_kg":24,"reps":8},{"set":2,"weight_kg":28,"reps":7},{"set":3,"weight_kg":28,"reps":8}]},
+        {"name": "DB Incline Bench Press", "sets": [{"set":1,"weight_kg":27.5,"reps":12},{"set":2,"weight_kg":27.5,"reps":8},{"set":3,"weight_kg":27.5,"reps":8}]},
+        {"name": "Cable Tricep Pushdown", "sets": [{"set":1,"weight_kg":31,"reps":12},{"set":2,"weight_kg":31,"reps":8},{"set":3,"weight_kg":31,"reps":8}]},
+        {"name": "DB Lateral Raise", "sets": [{"set":1,"weight_kg":5,"reps":15},{"set":2,"weight_kg":5,"reps":13},{"set":3,"weight_kg":5,"reps":13}]},
+        {"name": "Machine Fly", "sets": [{"set":1,"weight_kg":65,"reps":10},{"set":2,"weight_kg":65,"reps":6}]}
+      ]
+    }
+  ]
+}
